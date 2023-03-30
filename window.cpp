@@ -7,9 +7,14 @@ int print_mandelbrot (int window_width, float max_x_coordinate,
 {
         sf::RenderWindow window(sf::VideoMode(window_width, window_height), header);
 
+        float start_x_position  = 0.f;
+        float start_y_position  = 0.f;
+
         while (window.isOpen()) {
                 draw_mandelbrot_pixels(&window, window_width, max_x_coordinate,
-                                                window_height, max_y_coordinate, max_n_point_calculation, r2_max);
+                                                window_height, max_y_coordinate,
+                                                &start_x_position, &start_y_position,
+                                                max_n_point_calculation, r2_max);
                 window.display();
 
                 sf::Event event;
@@ -22,6 +27,7 @@ int print_mandelbrot (int window_width, float max_x_coordinate,
 
 int draw_mandelbrot_pixels (sf::RenderWindow *window, int window_width, float max_x_coordinate,
                                                       int window_height, float max_y_coordinate,
+                                                      float *start_x_position, float *start_y_position,
                                                       int max_n_point_calculation, float r2_max)
 {
         assert(window);
@@ -39,31 +45,39 @@ int draw_mandelbrot_pixels (sf::RenderWindow *window, int window_width, float ma
         float y2 = 0;
         float xy = 0;
 
-        float r2 = 0;
+        // change_scale(get_pressed_key(), start_x_position, start_y_position, &x_scale_coeff, &y_scale_coeff);
+        window_height += (int) *start_y_position;
+        window_width += (int) *start_x_position;
 
-        for (int pixel_y = 0; pixel_y < window_height; pixel_y++) {
-                for (int pixel_x = 0; pixel_x < window_width; pixel_x++) {
-                        y  = -max_y_coordinate + pixel_y * y_scale_coeff;
+        for (int pixel_y = (int) *start_y_position; pixel_y < window_height; pixel_y++) {
+                for (int pixel_x = (int) *start_x_position; pixel_x < window_width; pixel_x++) {
+                        y  = -max_y_coordinate + (float) pixel_y * y_scale_coeff;
                         y0 = y;
-                        x  = -max_x_coordinate + pixel_x * x_scale_coeff;
+                        x  = -max_x_coordinate + (float) pixel_x * x_scale_coeff;
                         x0 = x;
+
+
 
                         int i = 0;
                         for (; i <= max_n_point_calculation; i++) {
                                 x2 = x * x;
                                 y2 = y * y;
                                 xy = x * y;
-                                r2 = x2 + y2;
 
-                                if (x*x + y*y >= r2_max)
+                                if (x2 + y2 >= r2_max)
                                         break;
 
                                 x = x2 - y2 + x0;
-                                y = xy * 2 + y0;
+                                y = xy * 2  + y0;
                         }
                         print_pixel(window, i, max_n_point_calculation, pixel_x, pixel_y);
                 }
+                // window->pollEvent(event);
         }
+
+        // if (event.type ==  sf::Event::KeyPressed) {
+        // }
+
         return 0;
 }
 
@@ -90,4 +104,57 @@ int print_pixel (sf::RenderWindow *window, int iteration, int max_n_point_calcul
         window->draw(rectangle);
 
         return 0;
+}
+
+#define check_button(stdn_name, my_name)         if (sf::Keyboard::isKeyPressed(sf::Keyboard::stdn_name))    \
+                                                        return my_name;
+
+int get_pressed_key ()
+{
+        check_button(Left,      LEFT_BUTTON);
+        check_button(Right,     RIGHT_BUTTON);
+        check_button(Up,        UP_BUTTON);
+        check_button(Down,      DOWN_BUTTON);
+        check_button(Add,       ADD_BUTTON);
+        check_button(Subtract, SUB_BUTTON);
+
+        return 0;
+}
+#undef check_button
+
+void change_scale (int pressed_button, float *x, float *y, float *x_scale, float *y_scale)
+{
+        switch (pressed_button) {
+        case 0:
+                return;
+        case LEFT_BUTTON:
+                *x -= 10.f;
+                printf("left");
+                break;
+        case RIGHT_BUTTON:
+                *x += 10.f;
+                printf("right");
+                break;
+        case UP_BUTTON:
+                *y -= 10.f;
+                printf("up\n");
+                break;
+        case DOWN_BUTTON:
+                printf("down\n");
+                *y += 10.f;
+                break;
+        case ADD_BUTTON:
+                printf("add\n");
+                *x_scale *= 0.9f;
+                *y_scale *= 0.9f;
+                break;
+        case SUB_BUTTON:
+                *x_scale *= 1.1f;
+                *y_scale *= 1.1f;
+                break;
+        default:
+                assert(0 && "UNKNOWN BUTTON\n");
+        }
+
+        return;
 }
