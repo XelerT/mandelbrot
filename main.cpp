@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-#include "window.h"
+#include "mandelbrot.h"
+#include "graphics.h"
 
 int main ()
 {

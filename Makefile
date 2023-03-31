@@ -1,10 +1,10 @@
 OUTPUT = mandelbrot.out
 
-CFILES = main.cpp window.cpp
+CFILES = main.cpp mandelbrot.cpp graphics.cpp
 
 SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-OPT_FLAG = -mf16c -mavx2
+OPT_FLAG = -mavx2 -Og
 
 CFLAGS = -Wshadow    						\
 	-Winit-self 						\
@@ -48,7 +48,7 @@ CFLAGS = -Wshadow    						\
 
 all:
 	@ clear
-	@ g++ $(OPT_FLAG) -o $(OUTPUT) $(CFLAGS) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio $(CFILES)
+	g++ $(OPT_FLAG) -o $(OUTPUT) $(CFLAGS) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio $(CFILES)
 	@ echo Compiled c-files
 
 .PHONY: run
