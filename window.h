@@ -34,4 +34,6 @@ int print_pixel (sf::RenderWindow *window, int iteration, int max_n_point_calcul
 int get_pressed_key ();
 void change_scale (int pressed_button, float *x, float *y, float *x_scale, float *y_scale);
 
+int int2string (int number, char *dest, int max_length);
+
 #endif /*WINDOW_H*/
