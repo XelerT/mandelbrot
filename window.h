@@ -22,14 +22,14 @@ const sf::Color RED_COLOR = sf::Color::Red;
 
 int print_mandelbrot (int window_width, float max_x_coordinate,
                       int window_height, float max_y_coordinate,
-                      const char* header, int max_n_point_calculation, float r2_max);
+                      const char* header, int max_n_iteration, float r2_max);
 
 int draw_mandelbrot_pixels (sf::RenderWindow *window, int window_width, float max_x_coordinate,
                                                       int window_height, float max_y_coordinate,
                                                       float *start_x_position, float *start_y_position,
-                                                      int max_n_point_calculation, float r2_max);
+                                                      int max_n_iteration, float r2_max);
 
-int print_pixel (sf::RenderWindow *window, int iteration, int max_n_point_calculation,
+int print_pixel (sf::RenderWindow *window, int iteration, int max_n_iteration,
                                            int pixel_x, int pixel_y);
 int get_pressed_key ();
 void change_scale (int pressed_button, float *x, float *y, float *x_scale, float *y_scale);

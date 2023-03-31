@@ -4,6 +4,8 @@ CFILES = main.cpp window.cpp
 
 SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
+OPT_FLAG = -mf16c -mavx2
+
 CFLAGS = -Wshadow    						\
 	-Winit-self 						\
 	-Wredundant-decls 					\
@@ -46,7 +48,7 @@ CFLAGS = -Wshadow    						\
 
 all:
 	@ clear
-	@ g++ -O3 -o $(OUTPUT) $(CFLAGS) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio $(CFILES)
+	@ g++ $(OPT_FLAG) -o $(OUTPUT) $(CFLAGS) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio $(CFILES)
 	@ echo Compiled c-files
 
 .PHONY: run
