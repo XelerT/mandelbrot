@@ -5,9 +5,9 @@
 
 # Install & Run
 ```
-$ git clone
-$ make
-$ make run
+> git clone
+> make
+> make run
 ```
 ---
 
@@ -17,9 +17,9 @@ $ make run
 
 ![alt Moving](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_011331.png)
 
-- Use arrows to move along the plane.
-- Use Plus to get closer to mandelbrot.
-- Use Minus to get move away.
+> - Use arrows to move along the plane.
+> - Use Plus to get closer to mandelbrot.
+> - Use Minus to get move away.
 
 ---
 ### Performance modes
@@ -31,5 +31,5 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
 ## Credits
         - Created by Alex Taranov during 1 year of X courses.
 
-<sup align = "center">Spring 2023</sup>
+<sup align = "center"> Spring 2023 </sup>
 
