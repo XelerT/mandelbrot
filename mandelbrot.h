@@ -3,19 +3,21 @@
 
 #include "graphics.h"
 
-int print_mandelbrot (int window_width,  float max_x_coordinate,
-                      int window_height, float max_y_coordinate,
-                      const char* header, int max_n_iteration, float r2_max);
+enum performance {
+        AVX_PERFORMANCE,
+        MID_PERFORMANCE,
+        NO_PERFORMANCE
+};
 
-int calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_x_coordinate,
-                                             int window_height,       float max_y_coordinate,
-                                             int *start_x_position,   int *start_y_position,
-                                             int max_n_iteration, float r2_max);
+int print_mandelbrot (int window_width, int window_height, coordinates_t *coords,
+                                        const char* header, int max_n_iteration);
 
-int slow_calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_x_coordinate,
-                                                  int window_height,       float max_y_coordinate,
-                                                  int *start_x_position,   int *start_y_position,
-                                                  int max_n_iteration, float r2_max);
+int calc_mandelbrot_pixels (pixel_t *pixels, int window_width, int window_height, int max_n_iteration,
+                                                coordinates_t *coords);
+int mid_calc_mandelbrot_pixels (pixel_t *pixels, int window_width, int window_height, int max_n_iteration,
+                                                coordinates_t *coords);
+int slow_calc_mandelbrot_pixels (pixel_t *pixels, int window_width, int window_height, int max_n_iteration,
+                                                coordinates_t *coords);
 
 
 #endif /*MANDELBROT_H*/

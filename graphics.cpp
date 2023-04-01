@@ -8,23 +8,29 @@ int print_screen (sf::RenderWindow *window, pixel_t *pixels, int window_height, 
 {
         assert(window);
 
-        sf::RectangleShape pixel_rectangle(sf::Vector2f(1.f, 1.f));
-        sf::Color pixel_color{};
+        sf::Image mandel{};
+        mandel.create(window_width, window_height, RED_COLOR);
 
         int n_pixels = window_height * window_width;
 
         for (int i = 0; i < n_pixels; i++) {
-                pixel_color = pixels[i].color;
-                pixel_rectangle.setFillColor(pixel_color);
-
-                pixel_rectangle.setPosition((float) pixels[i].x, (float) pixels[i].y);
-                window->draw(pixel_rectangle);
+                mandel.setPixel(pixels[i].x, pixels[i].y, pixels[i].color);
         }
+        sf::Texture texture{};
+        texture.loadFromImage(mandel);
+
+        sf::Sprite screen{};
+        screen.setTexture(texture);
+
+        window->draw(screen);
+
         return 0;
 }
 
 int save_pixel (int window_width, int iteration, int max_n_iteration, pixel_t *pixels, int pixel_x, int pixel_y)
 {
+        assert(pixels);
+
         sf::Color pixel_color{};
 
         if (iteration < max_n_iteration) {
@@ -59,30 +65,30 @@ int get_pressed_key ()
 }
 #undef check_button
 
-void change_scale (int pressed_button, int *x, int *y, float *x_scale, float *y_scale)
+void change_scale (int pressed_button, coordinates_t *coords)
 {
         switch (pressed_button) {
         case 0:
                 return;
         case LEFT_BUTTON:
-                *x -= 10;
+                coords->start_x -= 10;
                 break;
         case RIGHT_BUTTON:
-                *x += 10;
+                coords->start_x += 10;
                 break;
         case UP_BUTTON:
-                *y -= 10;
+                coords->start_y -= 10;
                 break;
         case DOWN_BUTTON:
-                *y += 10;
+                coords->start_y += 10;
                 break;
         case ADD_BUTTON:
-                *x_scale *= 0.9f;
-                *y_scale *= 0.9f;
+                coords->max_x *= 0.9f;
+                coords->max_y *= 0.9f;
                 break;
         case SUB_BUTTON:
-                *x_scale *= 1.1f;
-                *y_scale *= 1.1f;
+                coords->max_x *= 1.1f;
+                coords->max_y *= 1.1f;
                 break;
         default:
                 assert(0 && "UNKNOWN BUTTON\n");

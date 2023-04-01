@@ -6,13 +6,15 @@
 int main ()
 {
         int window_width            = 1600;
-        float max_x_coordinate      = 2.f;
         int window_height           = 1200;
-        float max_y_coordinate      = 1.5f;
         const char* header          = "Mandlebrot";
+        coordinates_t coords        = {
+                .max_x   =  2.f,
+                .max_y   = 1.5f,
+                .start_x =    0,
+                .start_y =    0,
+                .r2_max  =  4.f
+        };
         int max_n_iteration         = 255;
-        float r2_max                = 4.f;
-        return print_mandelbrot(window_width, max_x_coordinate,
-                                window_height, max_y_coordinate,
-                                header, max_n_iteration, r2_max);
+        return print_mandelbrot(window_width, window_height, &coords, header, max_n_iteration);
 }

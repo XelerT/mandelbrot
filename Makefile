@@ -4,7 +4,7 @@ CFILES = main.cpp mandelbrot.cpp graphics.cpp
 
 SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-OPT_FLAG = -mavx2 -Og
+OPT_FLAG = -mavx2 -O1
 
 CFLAGS = -Wshadow    						\
 	-Winit-self 						\
