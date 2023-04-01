@@ -12,4 +12,10 @@ int calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_
                                              int *start_x_position,   int *start_y_position,
                                              int max_n_iteration, float r2_max);
 
+int slow_calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_x_coordinate,
+                                                  int window_height,       float max_y_coordinate,
+                                                  int *start_x_position,   int *start_y_position,
+                                                  int max_n_iteration, float r2_max);
+
+
 #endif /*MANDELBROT_H*/

@@ -18,23 +18,43 @@ int print_mandelbrot (int window_width,  float max_x_coordinate,
         if (!pixels)
                 return NULL_CALLOC;
 
+        int turn_drawing_on  = ~0;
+        int performance_mode = ~0;
+
         sf::Text fps_counter;
         sf::Clock clock;
         sf::Time current_time = clock.getElapsedTime();
         sf::Time previous_time = current_time;
 
         while (window.isOpen()) {
-                calc_mandelbrot_pixels(pixels,  window_width, max_x_coordinate,
-                                                window_height, max_y_coordinate,
-                                                &start_x_position, &start_y_position,
-                                                max_n_iteration, r2_max);
-                window.display();
-                print_screen(&window, pixels, window_height, window_width);
+                if (performance_mode)
+                        calc_mandelbrot_pixels(pixels,  window_width, max_x_coordinate,
+                                                        window_height, max_y_coordinate,
+                                                        &start_x_position, &start_y_position,
+                                                        max_n_iteration, r2_max);
+                else
+                        slow_calc_mandelbrot_pixels(pixels,  window_width, max_x_coordinate,
+                                                             window_height, max_y_coordinate,
+                                                             &start_x_position, &start_y_position,
+                                                             max_n_iteration, r2_max);
+                if (turn_drawing_on) {
+                        print_screen(&window, pixels, window_height, window_width);
+                        window.display();
+                }
 
                 sf::Event event;
                 while (window.pollEvent(event))
-                        if (event.type == sf::Event::Closed)
+                        if (event.type == sf::Event::Closed) {
                                 window.close();
+                        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
+                                turn_drawing_on = ~turn_drawing_on;
+                                printf("Changed drawing mode(%d).\n", turn_drawing_on);
+                                break;
+                        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+                                performance_mode = ~performance_mode;
+                                printf("Changed performance mode(%d).\n", performance_mode);
+                                break;
+                        }
 
                 change_scale(get_pressed_key(), &start_x_position, &start_y_position, &max_x_coordinate, &max_y_coordinate);
 
@@ -52,7 +72,7 @@ int print_mandelbrot (int window_width,  float max_x_coordinate,
 int calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_x_coordinate,
                                              int window_height,       float max_y_coordinate,
                                              int *start_x_position,   int *start_y_position,
-                                             int max_n_iteration, float r2_max)
+                                             int max_n_iteration,     float r2_max)
 {
         float x_scale_coeff = 2 * max_x_coordinate / (float) window_width;
         float y_scale_coeff = 2 * max_y_coordinate / (float) window_height;
@@ -106,6 +126,53 @@ int calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_
                         for (int i = 0; i < 8; i++) {
                                 save_pixel(window_width, *(n_iter + i), max_n_iteration, pixels, pixel_x + i, pixel_y);
                         }
+                }
+        }
+        return 0;
+}
+
+int slow_calc_mandelbrot_pixels (pixel_t *pixels, int window_width,        float max_x_coordinate,
+                                                  int window_height,       float max_y_coordinate,
+                                                  int *start_x_position,   int *start_y_position,
+                                                  int max_n_iteration,     float r2_max)
+{
+        float x_scale_coeff = 2 * max_x_coordinate / (float) window_width;
+        float y_scale_coeff = 2 * max_y_coordinate / (float) window_height;
+
+        float x = -max_x_coordinate;
+        float y = -max_y_coordinate;
+
+        float x0 = 0;
+        float y0 = 0;
+
+        float x2 = 0;
+        float y2 = 0;
+        float xy = 0;
+
+        // change_scale(get_pressed_key(), start_x_position, start_y_position, &x_scale_coeff, &y_scale_coeff);
+        window_height += (int) *start_y_position;
+        window_width  += (int) *start_x_position;
+
+        for (int pixel_y = 0; pixel_y < window_height; pixel_y++) {
+                for (int pixel_x = 0; pixel_x < window_width; pixel_x++) {
+                        y  = -max_y_coordinate + (float)(pixel_y + *start_y_position) * y_scale_coeff;
+                        y0 = y;
+                        x  = -max_x_coordinate + (float)(pixel_x + *start_x_position) * x_scale_coeff;
+                        x0 = x;
+
+                        int i = 0;
+                        for (; i <= max_n_iteration; i++) {
+                                x2 = x * x;
+                                y2 = y * y;
+                                xy = x * y;
+
+                                if (x2 + y2 >= r2_max)
+                                        break;
+
+                                x = x2 - y2 + x0;
+                                y = xy * 2  + y0;
+                        }
+                        save_pixel(window_width, i, max_n_iteration, pixels, pixel_x, pixel_y);
                 }
         }
         return 0;
