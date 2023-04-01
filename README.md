@@ -1,15 +1,15 @@
-#Mandelbrot
+# Mandelbrot
 - There are 3 types of perfarmance improvement.
 
 ![alt Mandelbrot](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_010044.png)
 
-#Install & Run
+# Install & Run
 $ git clone
 $ make
 $ make run
 ---
 
-#How to control
+# How to control
 
 ## Moving and scaling
 
@@ -29,5 +29,5 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
 ## Credits
         - Created by Alex Taranov during 1 year of X courses.
 
-                        <sub><sup>Spring 2023</sup></sub>
+<sup>Spring 2023</sup>
 
