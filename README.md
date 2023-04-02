@@ -29,7 +29,7 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
 # Performance
         Tests was done using -mavx2 and -O1 optimization flags on 100 cycles of drawing mandelbrot.
 #### No performance modification
-![alt Slow]()
+![alt Slow](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_102300.png)
         Main part of cpu load was on this part of code.
         ```
        │    │x2 = x * x;
@@ -51,7 +51,7 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
         ```
 
 #### AVX Parallelism
-        ![alt Fast]()
+        ![alt Fast](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_102526.png)
         Main parts of cpu load was on this part of code.
         ```
         | __m256 avx_x2 = _mm256_mul_ps(avx_x, avx_x);
