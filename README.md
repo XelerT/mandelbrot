@@ -5,11 +5,14 @@
 
 # Install & Run
 ```
-> git clone
+> git clone https://github.com/XelerT/mandelbrot.git
+> cd mandelbrot
 > make
 > make run
 ```
 ---
+#### Requerance
+You need to install Sfml libruary.
 
 ## How to control
 
