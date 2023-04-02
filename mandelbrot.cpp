@@ -24,13 +24,7 @@ int print_mandelbrot (int window_width, int window_height, coordinates_t *coords
         sf::Clock clock;
         sf::Time current_time = clock.getElapsedTime();
         sf::Time previous_time = current_time;
-// copy pasta!!!s
-// arr[] parallel
-// 30fps fix to pixel
-// struct size srtuct coord ...
-// -S asm. code to comments
-// bug -O2: describe
-// ***perf!
+
         while (window.isOpen()) {
                 if (performance_mode == AVX_PERFORMANCE)
                         calc_mandelbrot_pixels(pixels, window_width, window_height,
@@ -109,24 +103,99 @@ int calc_mandelbrot_pixels (pixel_t *pixels, int window_width, int window_height
                         avx_x0 = avx_x;
                         __m256i avx_n_iterations = _mm256_setzero_si256();
 
+                        // c4:
                         for (int i = 0; i < max_n_iteration; i++) {
+                                // _mm256_mul_ps(float __vector(8), float __vector(8)):                                                   ▒
+                                // return (__m256) ((__v8sf)__A * (__v8sf)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // 1b0:                               |
+                                // vmulps %ymm0,%ymm0,%ymm1           |                                                                       ▒
+                                // vmulps %ymm2,%ymm2,%ymm4           |                                                           ▒
+                                // vmulps %ymm2,%ymm0,%ymm2           |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
                                 __m256 avx_x2 = _mm256_mul_ps(avx_x, avx_x);
                                 __m256 avx_y2 = _mm256_mul_ps(avx_y, avx_y);
                                 __m256 avx_xy = _mm256_mul_ps(avx_x, avx_y);
 
+                                // _mm256_add_ps(float __vector(8), float __vector(8)):
+                                // return (__m256) ((__v8sf)__A + (__v8sf)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vaddps       %ymm4,%ymm1,%ymm0     |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
                                 __m256 avx_r2 = _mm256_add_ps(avx_x2, avx_y2);
 
+                                // _mm256_cmp_ps(float __vector(8), float __vector(8), int):
+                                // return (__m256) __builtin_ia32_cmpps256 ((__v8sf)__X, (__v8sf)__Y,
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vcmplt_oqps  %ymm7,%ymm0,%ymm0     |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
                                 __m256 avx_cmp = _mm256_cmp_ps(avx_r2, avx_r2_max, _CMP_LT_OQ);
+
+                                // _mm256_movemask_ps(float __vector(8)):
+                                // return __builtin_ia32_movmskps256 ((__v8sf)__A);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vmovmskps    %ymm0,%edx            |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                                // __m256 avx_x2 = _mm256_mul_ps(avx_x, avx_x);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // test         %edx,%edx             |
+                                // ↑ je           c4                  |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
                                 if (!_mm256_movemask_ps(avx_cmp))
                                         break;
+
+                                // _mm256_sub_epi32(long long __vector(4), long long __vector(4)):
+                                // extern __inline __m256i
+                                // __attribute__ ((__gnu_inline__, __always_inline__, __artificial__))
+                                // _mm256_sub_epi32 (__m256i __A, __m256i __B)
+                                // {
+                                // return (__m256i) ((__v8su)__A - (__v8su)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vpsubd       %ymm0,%ymm8,%ymm3     |
+                                // vmovdqa      %ymm3,%ymm8           |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                                // _mm256_sub_ps(float __vector(8), float __vector(8)):
+                                // return (__m256) ((__v8sf)__A - (__v8sf)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vsubps       %ymm4,%ymm1,%ymm0     |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                                // _mm256_add_ps(float __vector(8), float __vector(8)):
+                                // return (__m256) ((__v8sf)__A + (__v8sf)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vaddps       %ymm5,%ymm0,%ymm0     |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                                // _mm256_mul_ps(float __vector(8), float __vector(8)):
+                                // return (__m256) ((__v8sf)__A * (__v8sf)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                //  vaddps %ymm2,%ymm2,%ymm2         |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                                // _mm256_add_ps(float __vector(8), float __vector(8)):
+                                // return (__m256) ((__v8sf)__A + (__v8sf)__B);
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // vaddps       %ymm6,%ymm2,%ymm2     |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
                                 avx_n_iterations = _mm256_sub_epi32(avx_n_iterations, _mm256_castps_si256(avx_cmp));
 
                                 avx_x = _mm256_add_ps(_mm256_sub_ps(avx_x2, avx_y2), avx_x0);
                                 avx_y = _mm256_add_ps(_mm256_mul_ps(avx_two, avx_xy), avx_y0);
+
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~
+                                // add $0x1,%eax           |                                                                   ▒
+                                // mov $0x1,%esi           |                                                                   ▒
+                                // cmp %eax,%r14d          |                                                                   ▒
+                                // ↑ jne 1b0               |
+                                // ~~~~~~~~~~~~~~~~~~~~~~~~~
                         }
-
-
                         int *n_iter = (int*) &avx_n_iterations;
                         for (int i = 0; i < 8; i++) {
                                 save_pixel(window_width, *(n_iter + i), max_n_iteration, pixels, pixel_x + i, pixel_y);
@@ -227,7 +296,6 @@ int slow_calc_mandelbrot_pixels (pixel_t *pixels, int window_width, int window_h
         float y2 = 0;
         float xy = 0;
 
-        // change_scale(get_pressed_key(), start_x_position, start_y_position, &x_scale_coeff, &y_scale_coeff);
         window_height += (int) coords->start_y;
         window_width  += (int) coords->start_x;
 
@@ -240,16 +308,27 @@ int slow_calc_mandelbrot_pixels (pixel_t *pixels, int window_width, int window_h
 
                         int i = 0;
                         for (; i <= max_n_iteration; i++) {
+                                // vmulss    %xmm2,%xmm2,%xmm1
+                                // vmulss    %xmm0,%xmm0,%xmm3
+                                // vmulss    %xmm0,%xmm2,%xmm0                                                                                                                                                            ▒
                                 x2 = x * x;
                                 y2 = y * y;
                                 xy = x * y;
 
+                                // vaddss    %xmm3,%xmm1,%xmm2
+                                // vcomiss   %xmm6,%xmm2
+                                // jae       a5
                                 if (x2 + y2 >= coords->r2_max)
                                         break;
 
+                                // vsubss    %xmm3,%xmm1,%xmm1
+                                // vaddss    %xmm4,%xmm1,%xmm2
+                                // vaddss    %xmm0,%xmm0,%xmm0
+                                // vaddss    %xmm5,%xmm0,%xmm0
                                 x = x2 - y2 + x0;
                                 y = xy * 2  + y0;
                         }
+                        // a5:
                         save_pixel(window_width, i, max_n_iteration, pixels, pixel_x, pixel_y);
                 }
         }
