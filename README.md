@@ -31,7 +31,7 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
 #### No performance modification
 ![alt Slow](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_102300.png)
         Main part of cpu load was on this part of code.
-        ```
+```
        │    │x2 = x * x;
  21.20 │10c:│  vmulss    %xmm2,%xmm2,%xmm1
        │    │y2 = y * y;
@@ -48,12 +48,12 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
        │    │y = xy * 2  + y0;
   0.09 │    │  vaddss    %xmm0,%xmm0,%xmm0
   6.29 │    │  vaddss    %xmm5,%xmm0,%xmm0
-        ```
+```
 
 #### AVX Parallelism
-        ![alt Fast](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_102526.png)
+![alt Fast](https://github.com/XelerT/mandelbrot/blob/main/img/Screenshot_20230402_102526.png)
         Main parts of cpu load was on this part of code.
-        ```
+```
         | __m256 avx_x2 = _mm256_mul_ps(avx_x, avx_x);
         | __m256 avx_y2 = _mm256_mul_ps(avx_y, avx_y);
         | __m256 avx_xy = _mm256_mul_ps(avx_x, avx_y);
@@ -74,10 +74,8 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
         │     __m256 avx_x2 = _mm256_mul_ps(avx_x, avx_x);
   13.72 │       test         %edx,%edx
    0.16 │     ↑ je           c4
-        ```
+```
 
 ## Credits
-        - Created by Alex Taranov during 1 year of X courses.
-
-<sup align = "center"> Spring 2023 </sup>
+      Created by Alex Taranov during 1 year of X courses, Spring 2023
 
