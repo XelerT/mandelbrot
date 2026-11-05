@@ -78,7 +78,3 @@ You can change ways of mandelbrot calculation using **P** on keyboard. Using **D
   13.72 │       test         %edx,%edx
    0.16 │     ↑ je           c4
 ```
-
-## Credits
-      Created by Alex Taranov during 1 year of X courses, Spring 2023
-
